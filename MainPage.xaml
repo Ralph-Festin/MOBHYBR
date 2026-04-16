@@ -1,0 +1,70 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="finals.MainPage"
+             BackgroundColor="#365FC9">
+
+    <ScrollView>
+        <VerticalStackLayout
+            Padding="30,0"
+            Spacing="25">
+
+            <Label Text="CurrencyX"
+                   FontSize="28"
+                   FontAttributes="Bold"
+                   TextColor="White"
+                   HorizontalOptions="Center"
+                   Margin="0, 10, 0, 0"/>
+
+            <Grid>
+                <BoxView Color="White"
+                         CornerRadius="20" />
+
+                <VerticalStackLayout Padding="10">
+
+                    <DatePicker x:Name="DatePicker" 
+                                DateSelected="OnDateChanged"/>
+
+                    <Picker x:Name="CurrencyPicker"
+                            SelectedIndexChanged="OnCurrencyChanged"
+                            Title="Base Currency:"
+                            WidthRequest="350"
+                            HorizontalOptions="Start"
+                            Margin="0, 10"/>
+
+                    <CollectionView x:Name="CurrenciesCollection">
+                        <CollectionView.Header>
+                            <Grid ColumnDefinitions="*, *">
+                                <Border Grid.Column="0" Stroke="Black" BackgroundColor="LightGray" Padding="10">
+                                    <Label Text="Currency" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                                </Border>
+                                <Border Grid.Column="1" Stroke="Black" BackgroundColor="LightGray" Padding="10">
+                                    <Label Text="Rate" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
+                                </Border>
+                            </Grid>
+                        </CollectionView.Header>
+
+                        <CollectionView.ItemTemplate>
+                            <DataTemplate>
+                                <Grid ColumnDefinitions="*, *">
+                                    <Border Grid.Column="0" Stroke="Black" Padding="10">
+                                        <Label Text="{Binding CurrencyCode}" HorizontalTextAlignment="Center"/>
+                                    </Border>
+                                    <Border Grid.Column="1" Stroke="Black" Padding="10">
+                                        <Label Text="{Binding Rate}" HorizontalTextAlignment="Center"/>
+                                    </Border>
+                                </Grid>
+                            </DataTemplate>
+                        </CollectionView.ItemTemplate>
+                    </CollectionView>
+                </VerticalStackLayout>
+            </Grid>
+            <Button Text="Go to Currency Converter"
+                    Clicked="OnConverterPageClicked"
+                    FontAttributes="Bold"
+                    BackgroundColor="White"
+                    TextColor="Black" 
+                    HorizontalOptions="Center"/>
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>
