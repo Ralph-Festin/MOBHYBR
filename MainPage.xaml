@@ -2,69 +2,150 @@
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="finals.MainPage"
-             BackgroundColor="#365FC9">
+             BackgroundColor="#2F5BEA">
 
     <ScrollView>
-        <VerticalStackLayout
-            Padding="30,0"
-            Spacing="25">
+        <VerticalStackLayout Padding="10,8" Spacing="10">
 
-            <Label Text="CurrencyX"
-                   FontSize="28"
-                   FontAttributes="Bold"
-                   TextColor="White"
-                   HorizontalOptions="Center"
-                   Margin="0, 10, 0, 0"/>
+            <!-- HEADER -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="16"
+                   Padding="12"
+                   HasShadow="True">
 
-            <Grid>
-                <BoxView Color="White"
-                         CornerRadius="20" />
+                <VerticalStackLayout Spacing="6">
 
-                <VerticalStackLayout Padding="10">
+                    <Label Text="CurrencyX"
+                           FontSize="26"
+                           FontAttributes="Bold"
+                           TextColor="#2F5BEA"
+                           HorizontalOptions="Center"/>
 
-                    <DatePicker x:Name="DatePicker" 
-                                DateSelected="OnDateChanged"/>
+                    <Label Text="Live Currency Exchange Tracker"
+                           FontSize="12"
+                           TextColor="Gray"
+                           HorizontalOptions="Center"/>
 
-                    <Picker x:Name="CurrencyPicker"
-                            SelectedIndexChanged="OnCurrencyChanged"
-                            Title="Base Currency:"
-                            WidthRequest="350"
-                            HorizontalOptions="Start"
-                            Margin="0, 10"/>
-
-                    <CollectionView x:Name="CurrenciesCollection">
-                        <CollectionView.Header>
-                            <Grid ColumnDefinitions="*, *">
-                                <Border Grid.Column="0" Stroke="Black" BackgroundColor="LightGray" Padding="10">
-                                    <Label Text="Currency" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
-                                </Border>
-                                <Border Grid.Column="1" Stroke="Black" BackgroundColor="LightGray" Padding="10">
-                                    <Label Text="Rate" FontAttributes="Bold" HorizontalTextAlignment="Center"/>
-                                </Border>
-                            </Grid>
-                        </CollectionView.Header>
-
-                        <CollectionView.ItemTemplate>
-                            <DataTemplate>
-                                <Grid ColumnDefinitions="*, *">
-                                    <Border Grid.Column="0" Stroke="Black" Padding="10">
-                                        <Label Text="{Binding CurrencyCode}" HorizontalTextAlignment="Center"/>
-                                    </Border>
-                                    <Border Grid.Column="1" Stroke="Black" Padding="10">
-                                        <Label Text="{Binding Rate}" HorizontalTextAlignment="Center"/>
-                                    </Border>
-                                </Grid>
-                            </DataTemplate>
-                        </CollectionView.ItemTemplate>
-                    </CollectionView>
+                    <Button Text="Go to Currency Converter"
+                            Clicked="OnConverterPageClicked"
+                            BackgroundColor="#2F5BEA"
+                            TextColor="White"
+                            FontAttributes="Bold"
+                            CornerRadius="10"
+                            HeightRequest="40"/>
                 </VerticalStackLayout>
-            </Grid>
-            <Button Text="Go to Currency Converter"
-                    Clicked="OnConverterPageClicked"
-                    FontAttributes="Bold"
-                    BackgroundColor="White"
-                    TextColor="Black" 
-                    HorizontalOptions="Center"/>
+
+            </Frame>
+
+            <!-- MAIN CARD -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="16"
+                   Padding="12"
+                   HasShadow="True">
+
+                <VerticalStackLayout Spacing="8">
+
+                    <Label Text="Select Date &amp; Base Currency"
+                           FontAttributes="Bold"
+                           TextColor="#2F5BEA"
+                           HorizontalOptions="Center"/>
+
+                    <!-- SAME ROW -->
+                    <Grid ColumnDefinitions="*,*"
+                          ColumnSpacing="10">
+
+                        <DatePicker x:Name="DatePicker"
+                                    Grid.Column="0"
+                                    DateSelected="OnDateChanged"/>
+
+                        <Entry x:Name="CurrencySearchEntry"
+                               Grid.Column="1"
+                               Placeholder="Search currency"
+                               TextChanged="OnCurrencySearchChanged"
+                               Focused="OnCurrencyFocused"
+                               BackgroundColor="#F2F4FF"
+                               HeightRequest="40"/>
+                    </Grid>
+
+                    <!-- DROPDOWN -->
+                    <Frame x:Name="CurrencyDropdownFrame"
+                           IsVisible="False"
+                           HeightRequest="160"
+                           BackgroundColor="White"
+                           BorderColor="#D0D7FF"
+                           CornerRadius="10"
+                           Padding="0"
+                           HasShadow="True">
+
+                        <CollectionView x:Name="CurrencySearchCollection"
+                                        SelectionMode="Single"
+                                        SelectionChanged="OnCurrencySelected">
+
+                            <CollectionView.ItemTemplate>
+                                <DataTemplate>
+                                    <Frame Padding="8"
+                                           Margin="3"
+                                           CornerRadius="6"
+                                           BackgroundColor="#F7F9FF">
+
+                                        <Label Text="{Binding PickerDisplay}"
+                                               FontSize="13"/>
+                                    </Frame>
+                                </DataTemplate>
+                            </CollectionView.ItemTemplate>
+
+                        </CollectionView>
+
+                    </Frame>
+
+                </VerticalStackLayout>
+            </Frame>
+
+            <!-- RATES -->
+            <Frame BackgroundColor="White"
+                   CornerRadius="16"
+                   Padding="0"
+                   HasShadow="True">
+
+                <CollectionView x:Name="CurrenciesCollection"
+                                HeightRequest="180">
+
+                    <CollectionView.Header>
+                        <Grid ColumnDefinitions="*,*"
+                              Padding="8"
+                              BackgroundColor="#EEF2FF">
+
+                            <Label Text="Currency"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"/>
+
+                            <Label Grid.Column="1"
+                                   Text="Rate"
+                                   FontAttributes="Bold"
+                                   HorizontalTextAlignment="Center"/>
+                        </Grid>
+                    </CollectionView.Header>
+
+                    <CollectionView.ItemTemplate>
+                        <DataTemplate>
+                            <Grid ColumnDefinitions="*,*"
+                                  Padding="8">
+
+                                <Label Text="{Binding CurrencyCode}"
+                                       HorizontalTextAlignment="Center"/>
+
+                                <Label Grid.Column="1"
+                                       Text="{Binding Rate}"
+                                       HorizontalTextAlignment="Center"/>
+                            </Grid>
+                        </DataTemplate>
+                    </CollectionView.ItemTemplate>
+
+                </CollectionView>
+
+            </Frame>
+
         </VerticalStackLayout>
     </ScrollView>
+
 </ContentPage>

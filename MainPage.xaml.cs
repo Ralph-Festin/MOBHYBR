@@ -6,31 +6,82 @@ namespace finals
     public partial class MainPage : ContentPage
     {
         private readonly CurrencyApiService _currencyService = new CurrencyApiService();
+
+        private List<CurrencyItem> AllCurrencies;
+        private CurrencyItem SelectedCurrency;
+
         public MainPage()
         {
             InitializeComponent();
             LoadCurrencies();
             LoadRates();
+
+            CurrencyDropdownFrame.IsVisible = false;
         }
+
+        // Date changed
         private void OnDateChanged(object sender, EventArgs e)
         {
             LoadRates();
         }
-        private void OnCurrencyChanged(object sender, EventArgs e)
+
+        // Open + filter dropdown (DOES NOT HIDE)
+        private void OnCurrencySearchChanged(object sender, TextChangedEventArgs e)
         {
+            var text = e.NewTextValue;
+
+            CurrencyDropdownFrame.IsVisible = true;
+
+            if (AllCurrencies == null)
+                return;
+
+            var filtered = string.IsNullOrWhiteSpace(text)
+                ? AllCurrencies
+                : AllCurrencies
+                    .Where(c => c.PickerDisplay
+                    .ToLower()
+                    .Contains(text.ToLower()))
+                    .ToList();
+
+            CurrencySearchCollection.ItemsSource = filtered;
+        }
+
+        // When entry is focused, show full list
+        private void OnCurrencyFocused(object sender, FocusEventArgs e)
+        {
+            CurrencyDropdownFrame.IsVisible = true;
+            CurrencySearchCollection.ItemsSource = AllCurrencies;
+        }
+
+        // Select currency
+        private void OnCurrencySelected(object sender, SelectionChangedEventArgs e)
+        {
+            var selected = e.CurrentSelection.FirstOrDefault() as CurrencyItem;
+
+            if (selected == null)
+                return;
+
+            SelectedCurrency = selected;
+
+            CurrencySearchEntry.Text = selected.PickerDisplay;
+
             LoadRates();
         }
+
+        // Navigation
         private async void OnConverterPageClicked(object sender, EventArgs e)
         {
             await Shell.Current.GoToAsync(nameof(ConverterPage));
         }
+
+        // Load currencies
         private async void LoadCurrencies()
         {
             try
             {
                 Dictionary<string, string> currencies = await _currencyService.GetCurrenciesAsync();
 
-                var currencyList = currencies
+                AllCurrencies = currencies
                     .Select(c => new CurrencyItem
                     {
                         Code = c.Key.ToUpper(),
@@ -39,41 +90,44 @@ namespace finals
                     .OrderBy(c => c.Code)
                     .ToList();
 
-                CurrencyPicker.ItemsSource = currencyList;
-                CurrencyPicker.ItemDisplayBinding = new Binding("PickerDisplay");
+                SelectedCurrency = AllCurrencies
+                    .FirstOrDefault(c => c.Code == "PHP")
+                    ?? AllCurrencies.FirstOrDefault();
 
-                var phpIndex = currencyList.FindIndex(c => c.Code == "PHP");
-                if (phpIndex >= 0)
-                    CurrencyPicker.SelectedIndex = phpIndex;
-                else 
-                    CurrencyPicker.SelectedIndex = 0;
+                CurrencySearchEntry.Text = SelectedCurrency?.PickerDisplay;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", "Failed to fetch rates: " + ex.Message, "OK");
+                await DisplayAlert("Error", ex.Message, "OK");
             }
         }
+
+        // Load rates
         private async void LoadRates()
         {
             try
             {
-                string baseCurrency = (CurrencyPicker.SelectedItem as CurrencyItem)?.Code ?? "PHP";
+                string baseCurrency = SelectedCurrency?.Code ?? "PHP";
 
-                var selectedDate = DatePicker.Date;
-                var date = selectedDate.ToString("yyyy-MM-dd");
+                var date = DatePicker.Date.ToString("yyyy-MM-dd");
 
-                var latest = await _currencyService.GetLatestRatesAsync(baseCurrency, "USD, EUR, JPY, AUD, CAD", date);
-                    
-                var displayList = latest.Rates
-                    .Select(r => new DisplayRates { CurrencyCode = r.Key, Rate = r.Value })
+                var latest = await _currencyService.GetLatestRatesAsync(
+                    baseCurrency,
+                    "USD, EUR, JPY, AUD, CAD",
+                    date);
+
+                CurrenciesCollection.ItemsSource = latest.Rates
+                    .Select(r => new DisplayRates
+                    {
+                        CurrencyCode = r.Key,
+                        Rate = r.Value
+                    })
                     .Take(5)
                     .ToList();
-
-                CurrenciesCollection.ItemsSource = displayList;
             }
             catch (Exception ex)
             {
-                await DisplayAlert("Error", "Failed to fetch rates: " + ex.Message, "OK");
+                await DisplayAlert("Error", ex.Message, "OK");
             }
         }
     }
